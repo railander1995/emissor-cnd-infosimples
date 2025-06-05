@@ -1,21 +1,21 @@
 import streamlit as st
-import requests
-from certidoes.unir_pdfs import unir_pdfs
-from certidoes.consultas_infosimples import consultar_certidoes
+from receita_federal import emitir_cnd_receita_federal
 
-st.set_page_config(page_title="Emissor de CNDs", layout="centered")
-st.title("🔍 Emissor de Certidões Negativas (CND)")
+st.set_page_config(page_title="CND Receita Federal", layout="centered")
+st.title("🔍 Emitir Certidão da Receita Federal (PGFN)")
 
-cnpj = st.text_input("Digite o CNPJ (somente números):", max_chars=14)
-api_key = st.text_input("Chave da API Infosimples (confidencial):", type="password")
+cnpj = st.text_input("Digite o CNPJ da empresa (somente números):", max_chars=14)
 
-if st.button("Emitir Certidões"):
-    with st.spinner("Consultando certidões..."):
-        arquivos_pdf = consultar_certidoes(cnpj, api_key)
-        if arquivos_pdf:
-            caminho_arquivo = unir_pdfs(arquivos_pdf)
-            with open(caminho_arquivo, 'rb') as f:
-                st.success("✅ Certidões geradas com sucesso!")
-                st.download_button("📥 Baixar Certidões em PDF", f, file_name="certidoes_unificadas.pdf")
-        else:
-            st.error("❌ Não foi possível gerar todas as certidões.")
+if st.button("Emitir CND Receita Federal"):
+    if not cnpj:
+        st.warning("⚠️ Informe um CNPJ válido.")
+    else:
+        with st.spinner("Consultando a Receita Federal..."):
+            token = "J5VHHc9RJgeyTBzeARK43R5A5a8PWXiFDF5OmulT"
+            caminho_pdf = emitir_cnd_receita_federal(cnpj, token)
+            if caminho_pdf:
+                with open(caminho_pdf, "rb") as f:
+                    st.success("✅ Certidão gerada com sucesso!")
+                    st.download_button("📥 Baixar Certidão", f, file_name="cnd_receita_federal.pdf")
+            else:
+                st.error("❌ Não foi possível gerar a certidão. Verifique o CNPJ ou o token.")
